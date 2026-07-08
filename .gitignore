@@ -1,0 +1,36 @@
+# Veri dosyaları — repoya asla commit edilmez
+data/raw/*
+data/processed/*
+data/boundaries/*
+!data/**/.gitkeep
+!data/README.md
+*.csv
+*.parquet
+*.zip
+*.shp
+*.shx
+*.dbf
+*.prj
+
+# Python
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.ipynb_checkpoints/
+
+# Spark
+spark-warehouse/
+metastore_db/
+derby.log
+*.log
+
+# Kaggle kimlik bilgileri
+kaggle.json
+
+# IDE / OS
+.idea/
+.vscode/
+.DS_Store
+
+# Büyük çıktı haritaları isteğe bağlı tutulabilir; şimdilik takipte
