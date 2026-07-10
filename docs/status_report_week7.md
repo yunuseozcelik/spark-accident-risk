@@ -12,8 +12,16 @@
 - **US Census TIGER/Line 2023:** Eyalet (15 MB) ve ilçe (126 MB) sınır
   shapefile'ları indirildi.
 - Ham CSV, Spark ile okunup **eyalet bazlı partition'lanmış Parquet** katmanına
-  dönüştürüldü (`Severity` int, zaman sütunları timestamp, sayısal sütunlar double).
-  *(EDA çıktılarından doldur: toplam satır, tarih aralığı, Severity dağılımı.)*
+  dönüştürüldü (`Severity` int, zaman sütunları timestamp, sayısal sütunlar double);
+  2,9 GB CSV → **645 MB Parquet**.
+- İlk EDA (tam veri, `outputs/metrics/initial_eda.json`):
+  - **7.728.394 kayıt**, 46 sütun; Ocak 2016 – Nisan 2023.
+  - **Severity dağılımı belirgin dengesiz:** 1: %0,9 · 2: %79,7 · 3: %16,8 · 4: %2,6 —
+    öneri raporundaki binary high-risk (Severity ≥ 3) görevi ve class weighting
+    planını doğruluyor.
+  - Null oranları: konum/zaman/Severity %0; hava sütunları ~%2; `Wind_Speed` %7,4;
+    `Precipitation` **%28,5** (temizleme aşamasında özel strateji gerekecek).
+  - En yoğun eyaletler: CA (1,74M), FL (880K), TX (583K), SC (383K), NY (348K).
 
 ## 2. Platform ve Sistem Durumu
 
@@ -34,6 +42,11 @@ eyaletlerle sınırlandırılabiliyor.
 - **Sedona jar sürüm uyumu:** PyPI'daki `apache-sedona` 1.9.0 ile Maven'daki
   `sedona-spark-shaded-3.5_2.12:1.9.0` + `geotools-wrapper:1.7.1-28.5`
   eşleştirilmesi gerekti; sürüm uyumsuzluğu class-not-found hatalarına yol açıyor.
+- **Sedona shapefile okuyucusu** geotools sürüm uyumsuzluğu nedeniyle
+  (`ClassNotFoundException: org.geotools.api...`) güvenilir çalışmadı. Öneri
+  raporundaki plan-B uygulandı: sınırlar geopandas ile WKT sütunlu Parquet'e
+  dönüştürülüp (`scripts/convert_boundaries.py`, NAD83→WGS84) Spark tarafında
+  `ST_GeomFromWKT` ile join'lendi — geotools bağımlılığı tamamen kalktı.
 - **Bellek kısıtı:** 7.4 GB RAM'de 2.9 GB CSV işlerken Parquet'e erken dönüşüm ve
   eyalet bazlı partitioning kritik; shuffle partition sayısı düşürüldü.
 - **keplergl** ARM64 ortamında sorunlu olduğundan harita görselleştirmesi için
@@ -42,11 +55,18 @@ eyaletlerle sınırlandırılabiliyor.
 
 ## 4. Demo Çalıştırmalar
 
-- ✅ PySpark smoke test: SparkSession + groupBy aggregation.
-- ✅ CSV → Parquet dönüşümü (tam veri seti). *(süre/boyut ekle)*
+- ✅ PySpark smoke test: SparkSession + groupBy aggregation (`scripts/smoke_test.py`).
+- ✅ CSV → Parquet dönüşümü: tam veri seti (7,7M satır), 2,9 GB → 645 MB,
+  eyalet bazlı partition (`src/ingestion/csv_to_parquet.py`).
 - ✅ İlk EDA: satır sayısı, Severity dağılımı, null oranları, en yoğun 10 eyalet
-  → `outputs/metrics/initial_eda.json`. *(önemli sayıları buraya yaz)*
-- *(Sedona nokta-poligon join denemesi — cuma günü ekle)*
+  → `outputs/metrics/initial_eda.json` (`src/ingestion/initial_eda.py`).
+- ✅ Sedona nokta-poligon join demosu: SC kazaları (382K) × ABD ilçe poligonları
+  (3.235), `ST_Contains` ile ilçe bazlı kaza sayısı + yüksek şiddet oranı
+  (`src/spatial/sedona_join_demo.py` → `outputs/metrics/county_risk_demo.csv`).
+  46 SC ilçesinin tamamı eşleşti; en yoğun ilçe Greenville (57K kaza), en yüksek
+  high-risk oranı Charleston (%38,2). **Veri kalitesi bulgusu:** SC etiketli 82
+  kayıt koordinat olarak komşu eyaletlere düşüyor — temizleme aşamasında
+  mekânsal doğrulama adımı eklenecek.
 
 ## 5. Paper Taslağı
 

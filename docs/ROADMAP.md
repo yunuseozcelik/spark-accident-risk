@@ -17,21 +17,21 @@ Proje: **Apache Spark + Apache Sedona ile Trafik Kazası Şiddeti Analizi ve Mek
 ## 🔴 Hafta 7 Sprint Planı (08–13 Temmuz)
 
 ### Çarşamba 8 Temmuz — Ortam kurulumu
-- [ ] Python venv + `pip install -r requirements.txt`
-- [ ] Java 11/17 kontrolü (`java -version`), yoksa kurulum
-- [ ] PySpark smoke test: SparkSession aç, basit DataFrame işlemi
-- [ ] Kaggle API token ayarla (`~/.kaggle/kaggle.json`)
-- [ ] `scripts/download_data.sh` ile US-Accidents + TIGER/Line indirmeyi başlat (~3 GB)
+- [x] Python venv + `pip install -r requirements.txt`
+- [x] Java 11/17 kontrolü (`java -version`), yoksa kurulum
+- [x] PySpark smoke test: SparkSession aç, basit DataFrame işlemi
+- [x] Kaggle API token ayarla (`~/.kaggle/kaggle.json`)
+- [x] `scripts/download_data.sh` ile US-Accidents + TIGER/Line indirmeyi başlat (~3 GB)
 
 ### Perşembe 9 Temmuz — Veri alma + ilk demo run
-- [ ] CSV → Parquet dönüşümü (`src/ingestion/`) — şema, tip dönüşümleri
-- [ ] İlk EDA notebook'u: satır sayısı, Severity dağılımı, null oranları, tarih aralığı,
+- [x] CSV → Parquet dönüşümü (`src/ingestion/`) — şema, tip dönüşümleri
+- [x] İlk EDA notebook'u: satır sayısı, Severity dağılımı, null oranları, tarih aralığı,
       eyalet bazlı kaza sayıları
-- [ ] Demo run çıktılarının ekran görüntüsü/logları → status report malzemesi
-- [ ] Karşılaşılan kurulum sorunlarını not al (raporda "installation problems" bölümü)
+- [x] Demo run çıktılarının ekran görüntüsü/logları → status report malzemesi
+- [x] Karşılaşılan kurulum sorunlarını not al (raporda "installation problems" bölümü)
 
 ### Cuma 10 Temmuz — Sedona demo + literatür
-- [ ] Sedona kurulum doğrulaması: tek eyalet örneğinde nokta-poligon join denemesi
+- [x] Sedona kurulum doğrulaması: tek eyalet örneğinde nokta-poligon join denemesi
 - [ ] Related work okumaları: Moosavi vd. (arXiv:1906.05409) + US-Accidents ile yapılmış
       2-3 severity tahmin çalışması + 1 Sedona/mekânsal büyük veri makalesi
 - [ ] `report/` altında paper iskeleti (başlık, yazarlar, bölüm başlıkları)
@@ -63,13 +63,13 @@ Proje: **Apache Spark + Apache Sedona ile Trafik Kazası Şiddeti Analizi ve Mek
 
 ## Faz 1 — Ortam ve Veri (ACİL, Hafta 7 öncesi)
 
-- [ ] Python venv + `requirements.txt` kurulumu; Java 11/17 doğrulaması (`java -version`)
-- [ ] PySpark "hello world" — local modda SparkSession açılıp basit bir DataFrame işlemi
-- [ ] Apache Sedona kurulumu ve `ST_Contains` ile mini smoke test
-- [ ] Kaggle'dan US-Accidents CSV indirme (`scripts/download_data.sh` — kaggle CLI)
-- [ ] TIGER/Line eyalet + ilçe shapefile indirme (gerekirse GeoJSON'a dönüştürme)
-- [ ] CSV → Parquet dönüşümü (`src/ingestion/`) — şema kontrolü, tip dönüşümleri
-- [ ] İlk EDA notebook'u: satır sayısı, null oranları, Severity dağılımı, tarih aralığı
+- [x] Python venv + `requirements.txt` kurulumu; Java 11/17 doğrulaması (`java -version`)
+- [x] PySpark "hello world" — local modda SparkSession açılıp basit bir DataFrame işlemi
+- [x] Apache Sedona kurulumu ve `ST_Contains` ile mini smoke test
+- [x] Kaggle'dan US-Accidents CSV indirme (`scripts/download_data.sh` — kaggle CLI)
+- [x] TIGER/Line eyalet + ilçe shapefile indirme (gerekirse GeoJSON'a dönüştürme)
+- [x] CSV → Parquet dönüşümü (`src/ingestion/`) — şema kontrolü, tip dönüşümleri
+- [x] İlk EDA notebook'u: satır sayısı, null oranları, Severity dağılımı, tarih aralığı
 
 ## Faz 2 — Hafta 7 Teslimi
 
