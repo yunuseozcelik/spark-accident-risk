@@ -1,6 +1,6 @@
 # Dağıtık işleme
 pyspark>=3.5,<4.0
-apache-sedona[spark]>=1.6
+apache-sedona[spark]>=1.9
 
 # Veri / mekânsal yardımcılar
 pandas>=2.0
@@ -11,7 +11,6 @@ shapely>=2.0
 matplotlib>=3.8
 seaborn>=0.13
 folium>=0.16
-keplergl>=0.3
 
 # Notebook ve veri indirme
 jupyterlab>=4.0
