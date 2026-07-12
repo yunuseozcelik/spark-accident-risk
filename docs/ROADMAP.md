@@ -80,18 +80,20 @@ Proje: **Apache Spark + Apache Sedona ile Trafik Kazası Şiddeti Analizi ve Mek
 
 ## Faz 3 — Veri Hattı ve Öznitelikler
 
-- [ ] Temizleme (`src/preprocessing/`): null analizi, aykırı koordinat/süre filtreleri,
+- [x] Temizleme (`src/preprocessing/`): null analizi, aykırı koordinat/süre filtreleri,
       kategorik normalizasyon (Weather_Condition gruplama)
-- [ ] Öznitelik üretimi (`src/features/`): saat, gün, ay, hafta sonu, rush hour,
+- [x] Öznitelik üretimi (`src/features/`): saat, gün, ay, hafta sonu, rush hour,
       kaza süresi, hava durumu grupları
-- [ ] Zaman/hava/yol bazlı Spark toplulaştırmaları → `outputs/metrics/`
-- [ ] Parquet partitioning (örn. State/yıl bazlı) + caching stratejisi
+- [x] Zaman/hava/yol bazlı Spark toplulaştırmaları → `outputs/metrics/`
+- [x] Parquet partitioning (State bazlı) + caching stratejisi
 
 ## Faz 4 — Mekânsal Analiz (Sedona)
 
-- [ ] Kaza noktaları × eyalet/ilçe poligonları nokta-poligon join
-- [ ] İlçe bazlı kaza yoğunluğu ve yüksek şiddet oranı metrikleri
-- [ ] Folium / Kepler.gl risk haritası → `outputs/maps/`
+- [x] Kaza noktaları × eyalet/ilçe poligonları nokta-poligon join
+- [x] İlçe bazlı kaza yoğunluğu ve yüksek şiddet oranı metrikleri
+      (+ eyalet uyuşmazlığı doğrulaması: 1.609 kayıt, çoğu sınır bölgesi)
+- [x] Folium risk haritası → `outputs/maps/` (yoğunluk + high-risk oranı,
+      n<50 ilçeler "yetersiz veri")
 
 ## Faz 5 — Modelleme (MLlib)
 
