@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<title>Traffic Accident Severity Analysis and Spatial Risk Mapping with Apache Spark and Apache Sedona</title>
+<style>
+@page { size: A4; margin: 2cm; }
+body { font-family: Georgia, 'DejaVu Serif', serif; font-size: 11pt;
+       line-height: 1.45; max-width: 17cm; margin: 1.5cm auto; color: #111; }
+h1 { font-size: 16pt; line-height: 1.25; }
+h2 { font-size: 13pt; margin-top: 1.4em; border-bottom: 1px solid #999;
+     padding-bottom: 2px; }
+h3 { font-size: 11.5pt; }
+table { border-collapse: collapse; width: 100%; font-size: 10pt; margin: 0.8em 0; }
+th, td { border: 1px solid #888; padding: 4px 8px; text-align: left; }
+th { background: #eee; }
+code { font-family: 'DejaVu Sans Mono', monospace; font-size: 9.5pt;
+       background: #f2f2f2; padding: 0 3px; }
+blockquote { border-left: 3px solid #999; margin-left: 0; padding-left: 1em;
+             color: #333; font-style: italic; }
+@media print { body { margin: 0; } }
+</style>
+</head>
+<body>
+<h1>Traffic Accident Severity Analysis and Spatial Risk Mapping with Apache Spark and Apache Sedona</h1>
+<p><strong>Yunus Emre Özçelik</strong> (221401001) · <strong>Ali Kağan Güven</strong> (221401002)
+BİL 401 — Big Data and Distributed Data Processing, TOBB ETÜ</p>
+<h2>Abstract</h2>
+<p>Traffic accidents impose a significant burden on transportation networks, and
+understanding the factors that drive their severity is key to targeted prevention.
+In this project, we build an end-to-end distributed data pipeline on the
+US-Accidents dataset (~7.7M records, 49 US states, 2016–2023) using Apache Spark.
+The pipeline covers distributed ingestion and conversion of raw CSV data into
+partitioned Parquet, data cleaning, feature engineering over temporal, weather,
+and road/POI attributes, and spatial enrichment: accident coordinates are joined
+with US Census TIGER/Line state and county boundary polygons using Apache Sedona
+to produce regional risk maps. On top of the engineered features, we train Spark
+MLlib classifiers — multinomial logistic regression and random forest for the
+4-level severity task, and logistic regression, random forest, and gradient-boosted
+trees for a binary high-risk (Severity ≥ 3) task — and compare them with class-aware
+metrics (weighted F1, ROC-AUC, PR-AUC, high-risk recall). Beyond predictive
+performance, we report feature importance analyses and county-level accident
+density and high-severity-rate maps. As a preliminary demonstration, the full
+dataset has been converted into a state-partitioned Parquet layer (2.9 GB CSV →
+645 MB) and a Sedona point-in-polygon join of 383K South Carolina accidents
+against 3,235 county polygons produced county-level accident density and
+high-severity-rate metrics on a resource-constrained local cluster.
+Note that the Severity field measures impact on traffic
+flow rather than injury outcomes, and we use the term accordingly.</p>
+<h2>1. Introduction</h2>
+<p>Traffic accidents are a persistent source of congestion, economic loss, and harm
+on road networks. Large-scale accident records combined with contextual signals —
+time of day, weather, and road infrastructure — make it possible to study which
+conditions are associated with more disruptive accidents and where such accidents
+concentrate geographically. However, nationwide accident data at the scale of
+millions of records exceeds what single-machine, in-memory tools handle
+comfortably, motivating a distributed processing approach.</p>
+<p>This project investigates two questions on the US-Accidents dataset:</p>
+<blockquote>
+<p>To what extent can accident severity be explained and predicted from time of
+day, weather conditions, road/POI features, and location? Which state/county
+regions carry high accident density and high severity risk?</p>
+</blockquote>
+<p>We address them with an end-to-end pipeline built on Apache Spark for distributed
+data processing and MLlib modeling, and Apache Sedona for spatial joins between
+accident coordinates and administrative boundary polygons. The emphasis of the
+project is not raw predictive accuracy but a reproducible distributed pipeline
+that couples severity modeling with interpretable regional risk mapping.</p>
+<h2>2. Related Work</h2>
+<p><strong>Moosavi et al. [1]</strong> introduce US-Accidents, a countrywide traffic accident
+dataset collected continuously from real-time traffic incident feeds (MapQuest
+and Bing APIs) and augmented with weather, period-of-day, and points-of-interest
+attributes. The paper describes the collection and integration process and
+presents descriptive statistics on temporal and environmental accident patterns.
+We use the March 2023 release of this dataset (~7.7M records); where their focus
+is dataset construction, ours is a distributed analysis and modeling pipeline
+built on top of it.</p>
+<p><strong>Moosavi et al. [2]</strong> follow up with an accident <em>risk prediction</em> task: using
+the same heterogeneous sparse signals (time, weather, POI), they propose a deep
+neural model (DAP) that predicts the risk of accident occurrence for a geographic
+region within a time window. Our task differs in target and method: we predict
+the <em>severity</em> of an already-occurred accident with classical, interpretable
+MLlib classifiers, and we complement prediction with county-level spatial risk
+aggregation rather than grid-based occurrence forecasting.</p>
+<p><strong>Yu et al. [3]</strong> present GeoSpark — the system later donated to the Apache
+Software Foundation as Apache Sedona — which extends Spark with spatial RDDs,
+spatial partitioning, and spatial query operators such as range, kNN, and join
+queries over geometric objects. This is the infrastructure work our spatial
+stage relies on: we use Sedona&rsquo;s <code>ST_GeomFromWKT</code> / <code>ST_Contains</code> SQL interface
+to join ~7.7M accident points with US Census county polygons in a distributed
+fashion.</p>
+<p><em>(Ali Kağan — buraya US-Accidents üzerinde severity tahmini yapan 1-2 çalışma
+daha eklenecek; okuma listesindeki adaylardan atıfları doğrulayarak. Her biri
+için: ne yapmışlar, ne bulmuşlar, bizden farkı ne — 2-3 cümle.)</em></p>
+<p>In contrast to prior severity-prediction work on US-Accidents, which typically
+runs on single-machine Python/scikit-learn stacks over samples of the data, our
+contribution is an end-to-end distributed pipeline — ingestion, cleaning,
+feature engineering, spatial enrichment, and modeling all in Spark/Sedona over
+the full dataset — with regional risk maps as a first-class output alongside
+model metrics.</p>
+<h2>3. Proposed Implementation</h2>
+<h3>3.1 Dataset</h3>
+<p>US-Accidents (Feb 2016 – Mar 2023): ~7.7M records, ~46 columns, ~3 GB CSV.
+Target: <code>Severity</code> (ordinal 1–4, traffic-impact scale). Key feature groups:
+temporal (<code>Start_Time</code>, duration), weather (<code>Temperature</code>, <code>Humidity</code>,
+<code>Visibility</code>, <code>Wind_Speed</code>, <code>Precipitation</code>, <code>Weather_Condition</code>), road/POI
+flags (<code>Junction</code>, <code>Traffic_Signal</code>, <code>Crossing</code>, <code>Stop</code>, <code>Roundabout</code>), and
+location (<code>Start_Lat</code>, <code>Start_Lng</code>, <code>City</code>, <code>County</code>, <code>State</code>). Boundary data:
+US Census TIGER/Line state and county polygons.</p>
+<h3>3.2 Pipeline Architecture</h3>
+<table>
+<thead>
+<tr>
+<th>Stage</th>
+<th>Operation</th>
+<th>Output</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1. Ingestion</td>
+<td>CSV read, schema/type casting, CSV → Parquet partitioned by state</td>
+<td>Fast, reproducible read layer</td>
+</tr>
+<tr>
+<td>2. Cleaning</td>
+<td>Null analysis, outlier coordinate/duration filters, categorical normalization</td>
+<td>Analysis-ready base table</td>
+</tr>
+<tr>
+<td>3. Feature engineering</td>
+<td>Hour, day, month, weekend, rush hour, accident duration, weather groups</td>
+<td>Enriched features for MLlib</td>
+</tr>
+<tr>
+<td>4. Spatial processing</td>
+<td>Sedona point-in-polygon join (<code>ST_Contains</code>); county/state aggregation</td>
+<td>Regional density &amp; risk metrics</td>
+</tr>
+<tr>
+<td>5. Modeling</td>
+<td>StringIndexer → OneHotEncoder → VectorAssembler; LR / RF / GBT</td>
+<td>Predictive performance, feature importance</td>
+</tr>
+<tr>
+<td>6. Visualization</td>
+<td>Aggregates exported to Pandas/Folium</td>
+<td>Charts, confusion matrix, risk maps</td>
+</tr>
+</tbody>
+</table>
+<h3>3.3 Modeling Plan</h3>
+<ul>
+<li><strong>Multiclass:</strong> Severity 1–4 with multinomial logistic regression and random
+  forest.</li>
+<li><strong>Binary high-risk:</strong> Severity ≥ 3 relabeled as high-risk; LR, RF, and
+  GBTClassifier compared (GBT in Spark MLlib is binary-only, hence the split).</li>
+<li><strong>Class imbalance:</strong> class weighting, sampling, and threshold analysis as
+  needed.</li>
+<li><strong>Metrics:</strong> accuracy, weighted F1, macro/weighted precision-recall, confusion
+  matrix (multiclass); ROC-AUC, PR-AUC, F1, high-risk recall (binary).</li>
+</ul>
+<h3>3.4 Environment</h3>
+<p>Local Apache Spark 3.5 (PySpark) in local/standalone mode on personal machines
+(≤8 GB RAM); Apache Sedona 1.9 for spatial SQL; Python 3.10, OpenJDK 17.
+Data is partitioned by state so that analyses can be restricted to selected
+states/years under local resource constraints without changing the pipeline.</p>
+<h2>4. Results</h2>
+<p><em>(Final rapor için — model karşılaştırma tablosu, feature importance, haritalar.)</em></p>
+<h2>5. Conclusion</h2>
+<p><em>(Final rapor için.)</em></p>
+<h2>References</h2>
+<ol>
+<li>Moosavi, S., Samavatian, M. H., Parthasarathy, S., &amp; Ramnath, R. (2019).
+   A Countrywide Traffic Accident Dataset. arXiv:1906.05409.</li>
+<li>Moosavi, S., Samavatian, M. H., Parthasarathy, S., Teodorescu, R., &amp;
+   Ramnath, R. (2019). Accident Risk Prediction based on Heterogeneous Sparse
+   Data: New Dataset and Insights. In <em>Proc. 27th ACM SIGSPATIAL</em>.</li>
+<li>Yu, J., Wu, J., &amp; Sarwat, M. (2015). GeoSpark: A Cluster Computing Framework
+   for Processing Large-Scale Spatial Data. In <em>Proc. 23rd ACM SIGSPATIAL</em>.</li>
+<li>US-Accidents Dataset. kaggle.com/datasets/sobhanmoosavi/us-accidents</li>
+<li>U.S. Census Bureau TIGER/Line Shapefiles.</li>
+<li>Apache Spark Documentation. spark.apache.org/docs/latest/</li>
+<li>Apache Sedona Documentation. sedona.apache.org/latest/</li>
+</ol>
+</body>
+</html>

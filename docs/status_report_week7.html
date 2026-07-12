@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<title>BİL 401 — Hafta 7 Status Report</title>
+<style>
+@page { size: A4; margin: 2cm; }
+body { font-family: Georgia, 'DejaVu Serif', serif; font-size: 11pt;
+       line-height: 1.45; max-width: 17cm; margin: 1.5cm auto; color: #111; }
+h1 { font-size: 16pt; line-height: 1.25; }
+h2 { font-size: 13pt; margin-top: 1.4em; border-bottom: 1px solid #999;
+     padding-bottom: 2px; }
+h3 { font-size: 11.5pt; }
+table { border-collapse: collapse; width: 100%; font-size: 10pt; margin: 0.8em 0; }
+th, td { border: 1px solid #888; padding: 4px 8px; text-align: left; }
+th { background: #eee; }
+code { font-family: 'DejaVu Sans Mono', monospace; font-size: 9.5pt;
+       background: #f2f2f2; padding: 0 3px; }
+blockquote { border-left: 3px solid #999; margin-left: 0; padding-left: 1em;
+             color: #333; font-style: italic; }
+@media print { body { margin: 0; } }
+</style>
+</head>
+<body>
+<h1>BİL 401 — Hafta 7 Status Report</h1>
+<p><strong>Proje:</strong> Apache Spark ve Apache Sedona ile Trafik Kazası Şiddeti Analizi ve Mekânsal Risk Haritalama
+<strong>Ekip:</strong> Yunus Emre Özçelik (221401001), Ali Kağan Güven (221401002)
+<strong>Repo:</strong> https://github.com/yunuseozcelik/spark-accident-risk
+<strong>Tarih:</strong> 13.07.2026</p>
+<h2>1. Veri Toplama Durumu — TAMAMLANDI</h2>
+<ul>
+<li><strong>US-Accidents (2016–2023):</strong> Kaggle API ile indirildi; <code>US_Accidents_March23.csv</code>,
+  2.9 GB, ~7,7M kayıt, 46 sütun.</li>
+<li><strong>US Census TIGER/Line 2023:</strong> Eyalet (15 MB) ve ilçe (126 MB) sınır
+  shapefile&rsquo;ları indirildi.</li>
+<li>Ham CSV, Spark ile okunup <strong>eyalet bazlı partition&rsquo;lanmış Parquet</strong> katmanına
+  dönüştürüldü (<code>Severity</code> int, zaman sütunları timestamp, sayısal sütunlar double);
+  2,9 GB CSV → <strong>645 MB Parquet</strong>.</li>
+<li>İlk EDA (tam veri, <code>outputs/metrics/initial_eda.json</code>):</li>
+<li><strong>7.728.394 kayıt</strong>, 46 sütun; Ocak 2016 – Nisan 2023.</li>
+<li><strong>Severity dağılımı belirgin dengesiz:</strong> 1: %0,9 · 2: %79,7 · 3: %16,8 · 4: %2,6 —
+    öneri raporundaki binary high-risk (Severity ≥ 3) görevi ve class weighting
+    planını doğruluyor.</li>
+<li>Null oranları: konum/zaman/Severity %0; hava sütunları ~%2; <code>Wind_Speed</code> %7,4;
+    <code>Precipitation</code> <strong>%28,5</strong> (temizleme aşamasında özel strateji gerekecek).</li>
+<li>En yoğun eyaletler: CA (1,74M), FL (880K), TX (583K), SC (383K), NY (348K).</li>
+</ul>
+<h2>2. Platform ve Sistem Durumu</h2>
+<table>
+<thead>
+<tr>
+<th>Bileşen</th>
+<th>Sürüm</th>
+<th>Durum</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Apache Spark (PySpark)</td>
+<td>3.5.8</td>
+<td>✅ Kuruldu, smoke test geçti</td>
+</tr>
+<tr>
+<td>Apache Sedona</td>
+<td>1.9.0</td>
+<td>✅ Kuruldu; SC × ilçe nokta-poligon join demosu çalıştı (bkz. §4)</td>
+</tr>
+<tr>
+<td>OpenJDK</td>
+<td>17.0.19</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>Python</td>
+<td>3.10</td>
+<td>✅ venv + requirements.txt</td>
+</tr>
+<tr>
+<td>Donanım</td>
+<td>6 çekirdek ARM64, 7.4 GB RAM</td>
+<td>Yerel local[4] mod</td>
+</tr>
+</tbody>
+</table>
+<p>Spark, yerel kısıtlara göre <code>driver.memory=3g</code>, <code>shuffle.partitions=24</code> ile
+yapılandırıldı; veri eyalet bazlı partition&rsquo;landığı için analizler seçili
+eyaletlerle sınırlandırılabiliyor.</p>
+<h2>3. Kurulum Sorunları ve Edinilen Know-How</h2>
+<ul>
+<li><strong>Sedona jar sürüm uyumu:</strong> PyPI&rsquo;daki <code>apache-sedona</code> 1.9.0 ile Maven&rsquo;daki
+  <code>sedona-spark-shaded-3.5_2.12:1.9.0</code> + <code>geotools-wrapper:1.7.1-28.5</code>
+  eşleştirilmesi gerekti; sürüm uyumsuzluğu class-not-found hatalarına yol açıyor.</li>
+<li><strong>Sedona shapefile okuyucusu</strong> geotools sürüm uyumsuzluğu nedeniyle
+  (<code>ClassNotFoundException: org.geotools.api...</code>) güvenilir çalışmadı. Öneri
+  raporundaki plan-B uygulandı: sınırlar geopandas ile WKT sütunlu Parquet&rsquo;e
+  dönüştürülüp (<code>scripts/convert_boundaries.py</code>, NAD83→WGS84) Spark tarafında
+  <code>ST_GeomFromWKT</code> ile join&rsquo;lendi — geotools bağımlılığı tamamen kalktı.</li>
+<li><strong>Bellek kısıtı:</strong> 7.4 GB RAM&rsquo;de 2.9 GB CSV işlerken Parquet&rsquo;e erken dönüşüm ve
+  eyalet bazlı partitioning kritik; shuffle partition sayısı düşürüldü.</li>
+<li><strong>keplergl</strong> ARM64 ortamında sorunlu olduğundan harita görselleştirmesi için
+  Folium&rsquo;a karar verildi.</li>
+<li><strong>Karışık zaman formatı:</strong> Ham CSV&rsquo;de zaman sütunları kesirli saniyeli ve
+  saniyesiz karışık formatta geliyor; <code>inferSchema</code> yerine açık şema + <code>to_timestamp</code>
+  ile tip dönüşümü yapıldı — hem 2,9 GB CSV üzerinde ikinci bir tam okuma geçişi
+  önlendi hem format kaynaklı null&rsquo;lar oluşmadı.</li>
+</ul>
+<h2>4. Demo Çalıştırmalar</h2>
+<ul>
+<li>✅ PySpark smoke test: SparkSession + groupBy aggregation (<code>scripts/smoke_test.py</code>).</li>
+<li>✅ CSV → Parquet dönüşümü: tam veri seti (7,7M satır), 2,9 GB → 645 MB,
+  eyalet bazlı partition (<code>src/ingestion/csv_to_parquet.py</code>).</li>
+<li>✅ İlk EDA: satır sayısı, Severity dağılımı, null oranları, en yoğun 10 eyalet
+  → <code>outputs/metrics/initial_eda.json</code> (<code>src/ingestion/initial_eda.py</code>).</li>
+<li>✅ Sedona nokta-poligon join demosu: SC kazaları (382K) × ABD ilçe poligonları
+  (3.235), <code>ST_Contains</code> ile ilçe bazlı kaza sayısı + yüksek şiddet oranı
+  (<code>src/spatial/sedona_join_demo.py</code> → <code>outputs/metrics/county_risk_demo.csv</code>).
+  46 SC ilçesinin tamamı eşleşti; en yoğun ilçe Greenville (57K kaza), en yüksek
+  high-risk oranı Charleston (%38,2). <strong>Veri kalitesi bulgusu:</strong> SC etiketli 82
+  kayıt koordinat olarak komşu eyaletlere düşüyor — temizleme aşamasında
+  mekânsal doğrulama adımı eklenecek.</li>
+</ul>
+<h2>5. Paper Taslağı</h2>
+<p>Ekte: abstract, related work ve proposed implementation bölümlerini içeren taslak
+(<code>report/paper_draft.md</code>).</p>
+<h2>6. Sonraki Adımlar</h2>
+<p>Temizleme + öznitelik üretimi (Faz 3), Sedona bölgesel risk metrikleri (Faz 4),
+MLlib model eğitimi ve karşılaştırması (Faz 5) — bkz. <code>docs/ROADMAP.md</code>.</p>
+</body>
+</html>

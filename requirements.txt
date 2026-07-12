@@ -15,3 +15,6 @@ folium>=0.16
 # Notebook ve veri indirme
 jupyterlab>=4.0
 kaggle>=1.6
+
+# Rapor üretimi (md -> html, tarayıcıdan PDF)
+markdown>=3.6
