@@ -1,0 +1,13 @@
+flag,n_with_flag,high_risk_with_flag,high_risk_without_flag
+Traffic_Signal,1141178,0.0951,0.2123
+Crossing,870278,0.0704,0.2108
+Junction,569327,0.2683,0.1891
+Stop,212613,0.0622,0.1987
+Station,200973,0.0752,0.1981
+Amenity,95966,0.0624,0.1966
+Railway,66667,0.1514,0.1953
+Give_Way,36461,0.1617,0.1951
+No_Exit,19413,0.1129,0.1951
+Traffic_Calming,7532,0.1263,0.195
+Bump,3478,0.0966,0.195
+Roundabout,249,0.0442,0.1949
