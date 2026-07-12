@@ -34,16 +34,16 @@ Proje: **Apache Spark + Apache Sedona ile Trafik Kazası Şiddeti Analizi ve Mek
 - [x] Sedona kurulum doğrulaması: tek eyalet örneğinde nokta-poligon join denemesi
 - [ ] Related work okumaları: Moosavi vd. (arXiv:1906.05409) + US-Accidents ile yapılmış
       2-3 severity tahmin çalışması + 1 Sedona/mekânsal büyük veri makalesi
-- [ ] `report/` altında paper iskeleti (başlık, yazarlar, bölüm başlıkları)
+- [x] `report/` altında paper iskeleti (başlık, yazarlar, bölüm başlıkları)
 
 ### Cumartesi 11 Temmuz — Paper taslağı
-- [ ] **Abstract** — problem, veri, yöntem, beklenen katkı (öneri raporu 1. bölümden)
+- [x] **Abstract** — problem, veri, yöntem, beklenen katkı (öneri raporu 1. bölümden)
 - [ ] **Related Work** — okunan makalelerin özeti ve bu projenin farkı
-- [ ] **Proposed Implementation** — 6 aşamalı pipeline (öneri raporu 4. bölümün
-      İngilizce akademik hali) + mimari şema
+- [x] **Proposed Implementation** — 6 aşamalı pipeline (öneri raporu 4. bölümün
+      İngilizce akademik hali) + mimari şema (tablo olarak)
 
 ### Pazar 12 Temmuz — Status report + birleştirme
-- [ ] Status report yazımı (1-2 sayfa): veri toplama durumu ✓, platform durumu ✓,
+- [x] Status report yazımı (1-2 sayfa): veri toplama durumu ✓, platform durumu ✓,
       kurulum sorunları/know-how, demo run çıktıları
 - [ ] Paper taslağı son okuma, PDF üretimi
 - [ ] Ekip içi kontrol (Ali Kağan ile karşılıklı okuma)
@@ -73,7 +73,7 @@ Proje: **Apache Spark + Apache Sedona ile Trafik Kazası Şiddeti Analizi ve Mek
 
 ## Faz 2 — Hafta 7 Teslimi
 
-- [ ] Status report yazımı: veri durumu, kurulum notları/sorunları, demo run çıktıları
+- [x] Status report yazımı: veri durumu, kurulum notları/sorunları, demo run çıktıları
 - [ ] Paper taslağı (`report/`): **Abstract**, **Related Work** (Moosavi vd. arXiv:1906.05409
       + 2-3 ek çalışma), **Proposed Implementation** (pipeline mimarisi)
 - [ ] uzak.etu.edu.tr üzerinden yükleme

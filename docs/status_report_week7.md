@@ -28,7 +28,7 @@
 | Bileşen | Sürüm | Durum |
 |---|---|---|
 | Apache Spark (PySpark) | 3.5.8 | ✅ Kuruldu, smoke test geçti |
-| Apache Sedona | 1.9.0 | ✅ Kuruldu *(join denemesi: durumu güncelle)* |
+| Apache Sedona | 1.9.0 | ✅ Kuruldu; SC × ilçe nokta-poligon join demosu çalıştı (bkz. §4) |
 | OpenJDK | 17.0.19 | ✅ |
 | Python | 3.10 | ✅ venv + requirements.txt |
 | Donanım | 6 çekirdek ARM64, 7.4 GB RAM | Yerel local[4] mod |
@@ -51,7 +51,10 @@ eyaletlerle sınırlandırılabiliyor.
   eyalet bazlı partitioning kritik; shuffle partition sayısı düşürüldü.
 - **keplergl** ARM64 ortamında sorunlu olduğundan harita görselleştirmesi için
   Folium'a karar verildi.
-- *(Parquet dönüşüm süresi, EDA sırasında karşılaşılanlar: güncelle.)*
+- **Karışık zaman formatı:** Ham CSV'de zaman sütunları kesirli saniyeli ve
+  saniyesiz karışık formatta geliyor; `inferSchema` yerine açık şema + `to_timestamp`
+  ile tip dönüşümü yapıldı — hem 2,9 GB CSV üzerinde ikinci bir tam okuma geçişi
+  önlendi hem format kaynaklı null'lar oluşmadı.
 
 ## 4. Demo Çalıştırmalar
 
