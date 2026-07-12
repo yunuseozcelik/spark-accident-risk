@@ -1,0 +1,21 @@
+{
+  "row_counts": {
+    "input": 7728394,
+    "after_required_notnull": 7728394,
+    "after_coord_bbox": 7728394,
+    "after_duration_filter": 7693413,
+    "output": 7693413
+  },
+  "dropped_total": 34981,
+  "weather_group_distribution": {
+    "Clear": 3352239,
+    "Cloudy": 3108467,
+    "Rain": 513770,
+    "Fog_Low_Vis": 200383,
+    "Snow_Ice": 178247,
+    "Unknown": 172572,
+    "Thunderstorm": 88194,
+    "Windy_Dust": 79519,
+    "Other": 22
+  }
+}
