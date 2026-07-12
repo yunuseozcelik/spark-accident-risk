@@ -1,0 +1,10 @@
+weather_group,n_accidents,high_risk_rate,avg_duration_min
+Clear,3352239,0.1698,109.7
+Cloudy,3108467,0.2177,106.3
+Rain,513770,0.2302,102.6
+Fog_Low_Vis,200383,0.1607,108.1
+Snow_Ice,178247,0.2001,116.5
+Unknown,172572,0.2177,112.8
+Thunderstorm,88194,0.2107,99.4
+Windy_Dust,79519,0.143,119.0
+Other,22,0.0909,91.1

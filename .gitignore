@@ -5,6 +5,7 @@ data/boundaries/*
 !data/**/.gitkeep
 !data/README.md
 *.csv
+!outputs/metrics/*.csv
 *.parquet
 *.zip
 *.shp
