@@ -2,128 +2,215 @@
 <html lang="tr">
 <head>
 <meta charset="utf-8">
-<title>BİL 401 — Hafta 7 Status Report</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BİL 401 — Proje Ara Durum Raporu</title>
 <style>
-@page { size: A4; margin: 2cm; }
-body { font-family: Georgia, 'DejaVu Serif', serif; font-size: 11pt;
-       line-height: 1.45; max-width: 17cm; margin: 1.5cm auto; color: #111; }
-h1 { font-size: 16pt; line-height: 1.25; }
-h2 { font-size: 13pt; margin-top: 1.4em; border-bottom: 1px solid #999;
-     padding-bottom: 2px; }
-h3 { font-size: 11.5pt; }
-table { border-collapse: collapse; width: 100%; font-size: 10pt; margin: 0.8em 0; }
-th, td { border: 1px solid #888; padding: 4px 8px; text-align: left; }
-th { background: #eee; }
-code { font-family: 'DejaVu Sans Mono', monospace; font-size: 9.5pt;
-       background: #f2f2f2; padding: 0 3px; }
-blockquote { border-left: 3px solid #999; margin-left: 0; padding-left: 1em;
-             color: #333; font-style: italic; }
-@media print { body { margin: 0; } }
+body {
+    max-width: 900px;
+    margin: 36px auto;
+    padding: 0 28px;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 11pt;
+    line-height: 1.5;
+    color: #202124;
+}
+h1 { font-size: 22pt; }
+h2 {
+    font-size: 16pt;
+    margin-top: 26px;
+    border-bottom: 1px solid #cccccc;
+    padding-bottom: 5px;
+}
+h3 { font-size: 13pt; margin-top: 20px; }
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 14px 0;
+}
+th, td {
+    border: 1px solid #aaaaaa;
+    padding: 7px;
+    text-align: left;
+    vertical-align: top;
+}
+th { background: #f3f4f6; }
+code { font-family: Consolas, monospace; }
+a { color: inherit; overflow-wrap: anywhere; }
+
+@page {
+    size: A4;
+    margin: 17mm;
+}
+@media print {
+    body {
+        max-width: none;
+        margin: 0;
+        padding: 0;
+    }
+    h1, h2, h3 { break-after: avoid; }
+    table { break-inside: avoid; }
+}
 </style>
 </head>
 <body>
-<h1>BİL 401 — Hafta 7 Status Report</h1>
-<p><strong>Proje:</strong> Apache Spark ve Apache Sedona ile Trafik Kazası Şiddeti Analizi ve Mekânsal Risk Haritalama
-<strong>Ekip:</strong> Yunus Emre Özçelik (221401001), Ali Kağan Güven (221401002)
-<strong>Repo:</strong> https://github.com/yunuseozcelik/spark-accident-risk
-<strong>Tarih:</strong> 13.07.2026</p>
-<h2>1. Veri Toplama Durumu — TAMAMLANDI</h2>
+<h1>BİL 401 — Proje Ara Durum Raporu</h1>
+<table>
+<thead>
+<tr>
+<th>Bilgi</th>
+<th>Açıklama</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Proje</strong></td>
+<td>Apache Spark ve Apache Sedona ile Trafik Kazası Şiddeti Analizi ve Mekânsal Risk Haritalama</td>
+</tr>
+<tr>
+<td><strong>Ekip</strong></td>
+<td>Yunus Emre Özçelik (221401001), Ali Kağan Güven (221401002)</td>
+</tr>
+<tr>
+<td><strong>Ders</strong></td>
+<td>BİL 401 — Büyük Veri ve Dağıtık Veri İşleme</td>
+</tr>
+<tr>
+<td><strong>Tarih</strong></td>
+<td>13.07.2026</td>
+</tr>
+<tr>
+<td><strong>GitHub</strong></td>
+<td>https://github.com/yunuseozcelik/spark-accident-risk</td>
+</tr>
+</tbody>
+</table>
+<h2>1. Projenin Mevcut Durumu</h2>
+<p>Bu projede US-Accidents veri seti üzerinde trafik kazalarının trafik akışına etkisini ifade eden <code>Severity</code> seviyesinin zamansal, meteorolojik, yol ve konum özellikleriyle ilişkisi incelenmektedir. Projenin temel amacı yalnızca bir tahmin modeli geliştirmek değil; büyük ölçekli verinin Apache Spark ile alınması, dönüştürülmesi, temizlenmesi, zenginleştirilmesi, Apache Sedona ile mekânsal olarak birleştirilmesi ve bölgesel risk çıktılarının oluşturulmasını kapsayan uçtan uca bir veri hattı geliştirmektir.</p>
+<p>Veri setindeki <code>Severity</code> alanı yaralanma veya ölüm ciddiyetini değil, kazanın trafik akışı üzerindeki etkisini ve oluşturduğu gecikme seviyesini göstermektedir. Bu nedenle proje kapsamında kullanılan “şiddet” ve “yüksek risk” ifadeleri trafik etkisi bağlamında yorumlanmaktadır.</p>
+<h2>2. Veri Toplama ve Hazırlama Durumu</h2>
+<p>US-Accidents March 2023 sürümü Kaggle üzerinden indirilmiştir. Ham veri yaklaşık 2,9 GB büyüklüğünde bir CSV dosyasıdır ve 7.728.394 kayıt ile 46 sütun içermektedir. Veri setinde gözlemlenen zaman damgaları 2016–2023 dönemini kapsamaktadır.</p>
+<p>Ham CSV dosyası Apache Spark kullanılarak açık bir şema ile okunmuş, tarih ve sayısal alanların veri tipleri dönüştürülmüş ve veri <code>State</code> sütununa göre partition edilmiş Parquet formatında kaydedilmiştir. Bu işlem sonucunda yaklaşık 2,9 GB olan CSV verisi yaklaşık 645 MB büyüklüğünde bir Parquet katmanına dönüştürülmüştür.</p>
+<p>İlk keşifsel veri analizi sonucunda Severity sınıflarının belirgin biçimde dengesiz olduğu görülmüştür:</p>
 <ul>
-<li><strong>US-Accidents (2016–2023):</strong> Kaggle API ile indirildi; <code>US_Accidents_March23.csv</code>,
-  2.9 GB, ~7,7M kayıt, 46 sütun.</li>
-<li><strong>US Census TIGER/Line 2023:</strong> Eyalet (15 MB) ve ilçe (126 MB) sınır
-  shapefile&rsquo;ları indirildi.</li>
-<li>Ham CSV, Spark ile okunup <strong>eyalet bazlı partition&rsquo;lanmış Parquet</strong> katmanına
-  dönüştürüldü (<code>Severity</code> int, zaman sütunları timestamp, sayısal sütunlar double);
-  2,9 GB CSV → <strong>645 MB Parquet</strong>.</li>
-<li>İlk EDA (tam veri, <code>outputs/metrics/initial_eda.json</code>):</li>
-<li><strong>7.728.394 kayıt</strong>, 46 sütun; Ocak 2016 – Nisan 2023.</li>
-<li><strong>Severity dağılımı belirgin dengesiz:</strong> 1: %0,9 · 2: %79,7 · 3: %16,8 · 4: %2,6 —
-    öneri raporundaki binary high-risk (Severity ≥ 3) görevi ve class weighting
-    planını doğruluyor.</li>
-<li>Null oranları: konum/zaman/Severity %0; hava sütunları ~%2; <code>Wind_Speed</code> %7,4;
-    <code>Precipitation</code> <strong>%28,5</strong> (temizleme aşamasında özel strateji gerekecek).</li>
-<li>En yoğun eyaletler: CA (1,74M), FL (880K), TX (583K), SC (383K), NY (348K).</li>
+<li>Severity 1: yaklaşık %0,9</li>
+<li>Severity 2: yaklaşık %79,7</li>
+<li>Severity 3: yaklaşık %16,8</li>
+<li>Severity 4: yaklaşık %2,6</li>
 </ul>
-<h2>2. Platform ve Sistem Durumu</h2>
+<p>Bu dağılım, modelleme aşamasında yalnızca accuracy metriğinin yeterli olmayacağını ve sınıf ağırlıkları, örnekleme, eşik analizi ve sınıf bazlı metriklerin kullanılmasının gerekli olduğunu göstermektedir.</p>
+<p>Temizleme aşamasında zorunlu alanlar, koordinatlar ve kaza süreleri kontrol edilmiştir. Başlangıçtaki 7.728.394 kayıttan geçersiz kaza süresine sahip 34.981 kayıt çıkarılmış ve 7.693.413 kayıt temizlenmiş veri setine aktarılmıştır. <code>Weather_Condition</code> değerleri Clear, Cloudy, Rain, Fog/Low Visibility, Snow/Ice, Thunderstorm, Windy/Dust, Unknown ve Other grupları altında normalize edilmiştir.</p>
+<h2>3. Platform ve Sistem Kurulumu</h2>
+<p>Projede aşağıdaki teknolojiler kullanılmaktadır:</p>
 <table>
 <thead>
 <tr>
 <th>Bileşen</th>
-<th>Sürüm</th>
+<th>Sürüm / Yapılandırma</th>
 <th>Durum</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>Apache Spark (PySpark)</td>
+<td>Python</td>
+<td>3.10</td>
+<td>Kuruldu</td>
+</tr>
+<tr>
+<td>OpenJDK</td>
+<td>17</td>
+<td>Kuruldu</td>
+</tr>
+<tr>
+<td>Apache Spark / PySpark</td>
 <td>3.5.8</td>
-<td>✅ Kuruldu, smoke test geçti</td>
+<td>Smoke test başarılı</td>
 </tr>
 <tr>
 <td>Apache Sedona</td>
 <td>1.9.0</td>
-<td>✅ Kuruldu; SC × ilçe nokta-poligon join demosu çalıştı (bkz. §4)</td>
+<td>Mekânsal SQL testi başarılı</td>
 </tr>
 <tr>
-<td>OpenJDK</td>
-<td>17.0.19</td>
-<td>✅</td>
+<td>Depolama</td>
+<td>CSV ve partition edilmiş Parquet</td>
+<td>Çalışıyor</td>
 </tr>
 <tr>
-<td>Python</td>
-<td>3.10</td>
-<td>✅ venv + requirements.txt</td>
+<td>Mekânsal veri</td>
+<td>Census TIGER/Line eyalet ve ilçe sınırları</td>
+<td>Hazır</td>
 </tr>
 <tr>
-<td>Donanım</td>
-<td>6 çekirdek ARM64, 7.4 GB RAM</td>
-<td>Yerel local[4] mod</td>
+<td>Görselleştirme</td>
+<td>Folium</td>
+<td>İki risk haritası üretildi</td>
+</tr>
+<tr>
+<td>Geliştirme ortamları</td>
+<td>Linux/ARM64 ve Windows 11</td>
+<td>İki ortamda doğrulandı</td>
 </tr>
 </tbody>
 </table>
-<p>Spark, yerel kısıtlara göre <code>driver.memory=3g</code>, <code>shuffle.partitions=24</code> ile
-yapılandırıldı; veri eyalet bazlı partition&rsquo;landığı için analizler seçili
-eyaletlerle sınırlandırılabiliyor.</p>
-<h2>3. Kurulum Sorunları ve Edinilen Know-How</h2>
+<p>Spark yerel modda çalıştırılmakta; bellek ve işlemci kısıtlarına uygun olarak <code>local[4]</code>, 3 GB driver memory ve 24 shuffle partition kullanılmaktadır. Veri eyalet bazında partition edildiği için gerekli durumlarda seçili eyalet veya yıllar üzerinde çalışma yapılabilmektedir.</p>
+<h2>4. Gerçekleştirilen Veri Hattı ve Demo Çalışmaları</h2>
+<p>Şu ana kadar aşağıdaki aşamalar tamamlanmıştır:</p>
+<ol>
+<li>Ham US-Accidents CSV verisinin Spark ile okunması.</li>
+<li>Şema ve veri tipi dönüşümlerinin uygulanması.</li>
+<li>CSV verisinin eyalet bazlı Parquet formatına dönüştürülmesi.</li>
+<li>Null değer, koordinat ve kaza süresi kontrollerinin yapılması.</li>
+<li>Saat, gün, ay, hafta sonu, yoğun saat ve kaza süresi özelliklerinin üretilmesi.</li>
+<li>Hava koşullarının daha genel kategorilere ayrılması.</li>
+<li><code>Severity &gt;= 3</code> kayıtları için binary <code>high_risk</code> etiketinin oluşturulması.</li>
+<li>Saat, gün, ay, yıl, hava durumu ve yol özelliklerine göre Spark toplulaştırmalarının üretilmesi.</li>
+<li>Kaza koordinatlarının Apache Sedona geometrik noktalarına dönüştürülmesi.</li>
+<li>Kaza noktalarının Census ilçe poligonlarıyla <code>ST_Contains</code> kullanılarak birleştirilmesi.</li>
+<li>İlçe bazında toplam kaza sayısı, ortalama Severity ve yüksek risk oranlarının hesaplanması.</li>
+<li>İlçe bazlı kaza yoğunluğu ve yüksek risk oranı için iki etkileşimli Folium haritasının üretilmesi.</li>
+</ol>
+<p>PySpark smoke testinde küçük bir DataFrame üzerinde <code>groupBy</code> ve ortalama hesaplama işlemleri başarıyla tamamlanmıştır. Sedona smoke testinde ise <code>ST_Point</code> ve <code>ST_AsText</code> fonksiyonları kullanılarak geometrik nokta üretimi doğrulanmıştır.</p>
+<p>İlk Sedona demosunda South Carolina kazaları ABD ilçe poligonlarıyla birleştirilmiş ve eyaletteki 46 ilçenin tamamı eşleştirilmiştir. Daha sonra mekânsal analiz tam veri üzerinde çalıştırılmış, ilçe risk metrikleri ve eyalet etiketi ile koordinattan bulunan eyalet arasındaki uyuşmazlıklar hesaplanmıştır. Toplam 1.609 kayıtta eyalet uyuşmazlığı belirlenmiş; bunların önemli bölümünün eyalet sınırlarına yakın koordinatlardan kaynaklandığı değerlendirilmiştir.</p>
+<h2>5. Karşılaşılan Problemler ve Çözümler</h2>
+<h3>Karışık zaman biçimleri</h3>
+<p>Ham CSV dosyasında kesirli saniyeli ve saniyesiz farklı zaman formatları bulunmaktadır. <code>inferSchema</code> ile ikinci bir tam veri okuması yapmak yerine açık şema ve <code>to_timestamp</code> dönüşümleri kullanılmıştır.</p>
+<h3>Sedona ve GeoTools uyumluluğu</h3>
+<p>Sedona’nın doğrudan shapefile okuma yöntemi GeoTools sürüm uyuşmazlığı nedeniyle güvenilir çalışmamıştır. Alternatif çözüm olarak sınır dosyaları GeoPandas ile WKT içeren Parquet formatına dönüştürülmüş ve Spark içinde <code>ST_GeomFromWKT</code> kullanılarak okunmuştur.</p>
+<h3>Yerel bellek kısıtı</h3>
+<p>Yaklaşık 3 GB büyüklüğündeki CSV’nin sınırlı RAM üzerinde işlenmesi için erken Parquet dönüşümü, eyalet bazında partitioning ve düşük shuffle partition sayısı kullanılmıştır.</p>
+<h3>Windows Python worker problemi</h3>
+<p>Windows ortamında Spark worker süreçleri aktif sanal ortamın Python yorumlayıcısını otomatik olarak bulamamıştır. <code>PYSPARK_PYTHON</code>, <code>PYSPARK_DRIVER_PYTHON</code> ve ilgili Spark yapılandırmaları aktif <code>sys.executable</code> yoluna ayarlanarak problem çözülmüştür.</p>
+<h3>Windows Sedona JAR yükleme problemi</h3>
+<p>Windows ortamında Maven üzerinden indirilen Sedona JAR dosyaları <code>HADOOP_HOME / winutils.exe</code> hatasına yol açmıştır. Windows için gerekli JAR dosyaları PySpark’ın yerel <code>jars</code> klasöründen yüklenmiş, Linux/ARM64 ortamında ise Maven yöntemi korunmuştur. Böylece aynı SparkSession modülü farklı işletim sistemlerinde çalışabilir hâle getirilmiştir.</p>
+<h2>6. Güncel İlerleme ve Sonraki Adımlar</h2>
+<h3>Tamamlanan aşamalar</h3>
 <ul>
-<li><strong>Sedona jar sürüm uyumu:</strong> PyPI&rsquo;daki <code>apache-sedona</code> 1.9.0 ile Maven&rsquo;daki
-  <code>sedona-spark-shaded-3.5_2.12:1.9.0</code> + <code>geotools-wrapper:1.7.1-28.5</code>
-  eşleştirilmesi gerekti; sürüm uyumsuzluğu class-not-found hatalarına yol açıyor.</li>
-<li><strong>Sedona shapefile okuyucusu</strong> geotools sürüm uyumsuzluğu nedeniyle
-  (<code>ClassNotFoundException: org.geotools.api...</code>) güvenilir çalışmadı. Öneri
-  raporundaki plan-B uygulandı: sınırlar geopandas ile WKT sütunlu Parquet&rsquo;e
-  dönüştürülüp (<code>scripts/convert_boundaries.py</code>, NAD83→WGS84) Spark tarafında
-  <code>ST_GeomFromWKT</code> ile join&rsquo;lendi — geotools bağımlılığı tamamen kalktı.</li>
-<li><strong>Bellek kısıtı:</strong> 7.4 GB RAM&rsquo;de 2.9 GB CSV işlerken Parquet&rsquo;e erken dönüşüm ve
-  eyalet bazlı partitioning kritik; shuffle partition sayısı düşürüldü.</li>
-<li><strong>keplergl</strong> ARM64 ortamında sorunlu olduğundan harita görselleştirmesi için
-  Folium&rsquo;a karar verildi.</li>
-<li><strong>Karışık zaman formatı:</strong> Ham CSV&rsquo;de zaman sütunları kesirli saniyeli ve
-  saniyesiz karışık formatta geliyor; <code>inferSchema</code> yerine açık şema + <code>to_timestamp</code>
-  ile tip dönüşümü yapıldı — hem 2,9 GB CSV üzerinde ikinci bir tam okuma geçişi
-  önlendi hem format kaynaklı null&rsquo;lar oluşmadı.</li>
+<li>Veri setlerinin indirilmesi</li>
+<li>Spark ve Sedona ortamlarının kurulması</li>
+<li>CSV → Parquet dönüşümü</li>
+<li>İlk keşifsel veri analizi</li>
+<li>Temizleme ve kategorik normalizasyon</li>
+<li>Öznitelik üretimi</li>
+<li>Zaman, hava ve yol bazlı toplulaştırmalar</li>
+<li>Sedona nokta-poligon birleştirmesi</li>
+<li>İlçe risk metrikleri</li>
+<li>Folium risk haritaları</li>
+<li>Paper taslağının Abstract, Related Work ve Proposed Implementation bölümleri</li>
 </ul>
-<h2>4. Demo Çalıştırmalar</h2>
+<h3>Sonraki aşamalar</h3>
 <ul>
-<li>✅ PySpark smoke test: SparkSession + groupBy aggregation (<code>scripts/smoke_test.py</code>).</li>
-<li>✅ CSV → Parquet dönüşümü: tam veri seti (7,7M satır), 2,9 GB → 645 MB,
-  eyalet bazlı partition (<code>src/ingestion/csv_to_parquet.py</code>).</li>
-<li>✅ İlk EDA: satır sayısı, Severity dağılımı, null oranları, en yoğun 10 eyalet
-  → <code>outputs/metrics/initial_eda.json</code> (<code>src/ingestion/initial_eda.py</code>).</li>
-<li>✅ Sedona nokta-poligon join demosu: SC kazaları (382K) × ABD ilçe poligonları
-  (3.235), <code>ST_Contains</code> ile ilçe bazlı kaza sayısı + yüksek şiddet oranı
-  (<code>src/spatial/sedona_join_demo.py</code> → <code>outputs/metrics/county_risk_demo.csv</code>).
-  46 SC ilçesinin tamamı eşleşti; en yoğun ilçe Greenville (57K kaza), en yüksek
-  high-risk oranı Charleston (%38,2). <strong>Veri kalitesi bulgusu:</strong> SC etiketli 82
-  kayıt koordinat olarak komşu eyaletlere düşüyor — temizleme aşamasında
-  mekânsal doğrulama adımı eklenecek.</li>
+<li>Spark MLlib veri hazırlama pipeline’ının kurulması</li>
+<li>Çok sınıflı Logistic Regression ve Random Forest modellerinin eğitilmesi</li>
+<li>Binary high-risk Logistic Regression, Random Forest ve GBT modellerinin eğitilmesi</li>
+<li>Sınıf dengesizliği stratejilerinin uygulanması</li>
+<li>Accuracy, weighted F1, ROC-AUC, PR-AUC ve high-risk recall metriklerinin hesaplanması</li>
+<li>Confusion matrix ve feature importance çıktılarının oluşturulması</li>
+<li>Final paper’ın Results, Discussion ve Conclusion bölümlerinin tamamlanması</li>
+<li>20 dakikalık uçtan uca demo senaryosunun hazırlanması</li>
 </ul>
-<h2>5. Paper Taslağı</h2>
-<p>Ekte: abstract, related work ve proposed implementation bölümlerini içeren taslak
-(<code>report/paper_draft.md</code>).</p>
-<h2>6. Sonraki Adımlar</h2>
-<p>Temizleme + öznitelik üretimi (Faz 3), Sedona bölgesel risk metrikleri (Faz 4),
-MLlib model eğitimi ve karşılaştırması (Faz 5) — bkz. <code>docs/ROADMAP.md</code>.</p>
+<h2>7. İş Bölümü</h2>
+<p>Yunus Emre Özçelik; veri indirme, CSV–Parquet dönüşümü, veri hattı, ilk EDA, temizleme, öznitelik üretimi ve mekânsal analiz çalışmalarında görev almıştır.</p>
+<p>Ali Kağan Güven; literatür taraması, paper taslağının akademik bölümleri, Windows ortamının kurulması, Spark/Sedona platform uyumluluğu ve ara rapor kontrol çalışmalarında görev almıştır.</p>
+<p>Mekânsal analiz doğrulaması, rapor incelemesi, sonraki modelleme aşaması ve final demo hazırlığı ekip tarafından ortak yürütülecektir.</p>
 </body>
 </html>
