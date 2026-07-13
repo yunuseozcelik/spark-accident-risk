@@ -1,4 +1,4 @@
-# BİL 401 — Proje Ara Durum Raporu
+# BİL 401 — Proje Ara Raporu
 
 | Bilgi | Açıklama |
 |---|---|
