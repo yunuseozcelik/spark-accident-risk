@@ -36,6 +36,60 @@ GEOTOOLS_JAR_NAME = (
 )
 
 
+def _ensure_supported_java() -> None:
+    """Spark 3.5 için desteklenen JDK'yı (8/11/17) JAVA_HOME'a ayarlar.
+
+    Bu makinede varsayılan Java 21 olabilir; Spark 3.5 Java 21'i desteklemez
+    ve modül erişim (InaccessibleObject) hataları verebilir. Yerelde kurulu
+    bir JDK 17 varsa (setup_env.ps1 ile ~/Java/jdk-17 altına) onu kullanırız.
+    JAVA_HOME zaten uygun bir JDK'ya işaret ediyorsa dokunmayız.
+    """
+    if os.environ.get("SPARK_ACCIDENT_SKIP_JAVA_CHECK"):
+        return
+    # Bilinen JDK 17 konumlarına öncelik ver (JAVA_HOME Java 21 olabilir),
+    # bulunamazsa mevcut JAVA_HOME'a düş.
+    candidates = [
+        str(Path.home() / "Java" / "jdk-17"),
+        r"C:\Program Files\Eclipse Adoptium\jdk-17",
+        r"C:\Program Files\Java\jdk-17",
+        os.environ.get("JAVA_HOME", ""),
+    ]
+    for cand in candidates:
+        if cand and (Path(cand) / "bin" / ("java.exe" if os.name == "nt" else "java")).is_file():
+            os.environ["JAVA_HOME"] = cand
+            return
+    # Uygun JDK bulunamadı: sessizce sistem java'sına bırak (uyarı ver).
+    print(
+        "[uyarı] JDK 17 bulunamadı; Spark 3.5 sistem Java'sıyla çalışacak. "
+        "Sorun olursa: powershell -File scripts/setup_env.ps1"
+    )
+
+
+def _ensure_hadoop_home() -> None:
+    """Windows'ta Spark için HADOOP_HOME + winutils.exe/hadoop.dll ayarlar.
+
+    Spark, Windows'ta yerel dosya sistemi işlemleri için Hadoop'un
+    winutils.exe ve hadoop.dll ikililerini gerektirir; yoksa
+    'HADOOP_HOME and hadoop.home.dir are unset' hatası verir. Bunlar
+    setup_env.ps1 ile ~/hadoop/bin altına indirilir.
+    """
+    if os.name != "nt":
+        return
+    existing = os.environ.get("HADOOP_HOME")
+    candidates = [existing, str(Path.home() / "hadoop")]
+    for cand in candidates:
+        if cand and (Path(cand) / "bin" / "winutils.exe").is_file():
+            os.environ["HADOOP_HOME"] = cand
+            bin_dir = str(Path(cand) / "bin")
+            if bin_dir not in os.environ.get("PATH", ""):
+                os.environ["PATH"] = bin_dir + os.pathsep + os.environ.get("PATH", "")
+            return
+    print(
+        "[uyarı] winutils.exe bulunamadı; Windows'ta Spark hata verebilir. "
+        "Çözüm: powershell -File scripts/setup_env.ps1"
+    )
+
+
 def _check_windows_sedona_jars() -> None:
     """Windows ortamında gerekli Sedona JAR'larını kontrol eder."""
 
@@ -79,6 +133,9 @@ def get_spark(
     Returns:
         Yapılandırılmış SparkSession.
     """
+
+    _ensure_supported_java()
+    _ensure_hadoop_home()
 
     python_executable = sys.executable
     is_windows = platform.system() == "Windows"
