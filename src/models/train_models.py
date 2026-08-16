@@ -157,6 +157,11 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--input", default=PARQUET_IN, help="Öznitelik parquet yolu")
     parser.add_argument("--sample", type=float, default=None, help="Örnekleme oranı (0-1)")
+    parser.add_argument(
+        "--pre-accident-only",
+        action="store_true",
+        help="duration_min ve Distance(mi) olmadan pre-accident-only ablation çalıştır",
+    )
     args = parser.parse_args()
 
     spark = get_spark("faz5-train")
@@ -177,13 +182,24 @@ def main() -> None:
     test_raw = test_raw.cache()
 
     # Öğrenilen preprocessing adımlarını yalnızca eğitim verisi üzerinde fit et.
-    feat_pipeline = Pipeline(stages=build_feature_stages()).fit(train_raw)
+    feat_pipeline = Pipeline(
+        stages=build_feature_stages(
+            pre_accident_only=args.pre_accident_only
+        )
+    ).fit(train_raw)
 
     train = feat_pipeline.transform(train_raw).cache()
     test = feat_pipeline.transform(test_raw).cache()
 
     feature_names = extract_feature_names(train)
     feature_names_holder = [feature_names]
+    experiment_name = (
+        "pre-accident-only"
+        if args.pre_accident_only
+        else "full-feature"
+    )
+
+    print(f"Deney: {experiment_name}")
     print(f"Toplam öznitelik boyutu: {len(feature_names)}")
 
     print(f"Satır: {n_total:,} | eğitim: {train.count():,} | test: {test.count():,}")
@@ -225,6 +241,7 @@ def main() -> None:
 
     # --- Çıktıları yaz ---
     METRICS_DIR.mkdir(parents=True, exist_ok=True)
+    suffix = "_preaccident" if args.pre_accident_only else ""
     comparison = {
         "n_rows": n_total,
         "n_features": len(feature_names),
@@ -235,11 +252,11 @@ def main() -> None:
             "high_risk": {int(k): v for k, v in w_b.items()},
         },
     }
-    (METRICS_DIR / "model_comparison.json").write_text(
+    (METRICS_DIR / f"model_comparison{suffix}.json").write_text(
         json.dumps(comparison, indent=2, ensure_ascii=False))
 
     # Düz CSV tablosu (görev, model, metrik sütunları)
-    with (METRICS_DIR / "model_comparison.csv").open("w", newline="", encoding="utf-8") as f:
+    with (METRICS_DIR / f"model_comparison{suffix}.csv").open("w", newline="", encoding="utf-8") as f:
         w = csv.writer(f)
         w.writerow(["task", "model", "metric", "value"])
         for task, res in [("severity", res_m), ("high_risk", res_b)]:
@@ -247,13 +264,16 @@ def main() -> None:
                 for metric, value in metrics.items():
                     w.writerow([task, model, metric, round(value, 5)])
 
-    (METRICS_DIR / "feature_importances.json").write_text(
+    (METRICS_DIR / f"feature_importances{suffix}.json").write_text(
         json.dumps({"severity": imp_m, "high_risk": imp_b}, indent=2, ensure_ascii=False))
-    (METRICS_DIR / "confusion_matrices.json").write_text(
+    (METRICS_DIR / f"confusion_matrices{suffix}.json").write_text(
         json.dumps({"severity": cm_m, "high_risk": cm_b}, indent=2, ensure_ascii=False))
 
-    print(f"\nYazıldı: {METRICS_DIR}/model_comparison.json|csv, "
-          f"feature_importances.json, confusion_matrices.json")
+    print(
+        f"\nYazıldı: {METRICS_DIR}/model_comparison{suffix}.json|csv, "
+        f"feature_importances{suffix}.json, "
+        f"confusion_matrices{suffix}.json"
+    )
     spark.stop()
 
 
