@@ -1,0 +1,195 @@
+{
+  "description": "Ayni kod (ali/pre-accident-ablation), ayni seed (42), ayni US-Accidents surumu; iki farkli makinede bagimsiz calistirilan pre-accident-only ablation kosusunun karsilastirmasi.",
+  "run_A": "Yunus - Windows 11, 12 cekirdek/16 GB, Spark local[8], driver 7g",
+  "run_B": "Ali  - kendi makinesi",
+  "n_rows": 7693413,
+  "n_features": 37,
+  "max_abs_diff": 0.00388,
+  "note": "Tum metriklerde fark <0.004; kaynak Spark icindeki paralel kayan-nokta toplama sirasinin makineler arasi degismesi.",
+  "metrics": [
+    {
+      "task": "binary_high_risk",
+      "model": "logreg",
+      "metric": "accuracy",
+      "run_A_yunus": 0.68119,
+      "run_B_ali": 0.6811,
+      "abs_diff": 9e-05
+    },
+    {
+      "task": "binary_high_risk",
+      "model": "logreg",
+      "metric": "weighted_f1",
+      "run_A_yunus": 0.70943,
+      "run_B_ali": 0.7095,
+      "abs_diff": 7e-05
+    },
+    {
+      "task": "binary_high_risk",
+      "model": "logreg",
+      "metric": "roc_auc",
+      "run_A_yunus": 0.69325,
+      "run_B_ali": 0.69404,
+      "abs_diff": 0.00079
+    },
+    {
+      "task": "binary_high_risk",
+      "model": "logreg",
+      "metric": "pr_auc",
+      "run_A_yunus": 0.35015,
+      "run_B_ali": 0.35038,
+      "abs_diff": 0.00023
+    },
+    {
+      "task": "binary_high_risk",
+      "model": "logreg",
+      "metric": "high_risk_recall",
+      "run_A_yunus": 0.57689,
+      "run_B_ali": 0.57709,
+      "abs_diff": 0.0002
+    },
+    {
+      "task": "binary_high_risk",
+      "model": "random_forest",
+      "metric": "accuracy",
+      "run_A_yunus": 0.72216,
+      "run_B_ali": 0.72569,
+      "abs_diff": 0.00353
+    },
+    {
+      "task": "binary_high_risk",
+      "model": "random_forest",
+      "metric": "weighted_f1",
+      "run_A_yunus": 0.74204,
+      "run_B_ali": 0.74486,
+      "abs_diff": 0.00282
+    },
+    {
+      "task": "binary_high_risk",
+      "model": "random_forest",
+      "metric": "roc_auc",
+      "run_A_yunus": 0.71706,
+      "run_B_ali": 0.71754,
+      "abs_diff": 0.00048
+    },
+    {
+      "task": "binary_high_risk",
+      "model": "random_forest",
+      "metric": "pr_auc",
+      "run_A_yunus": 0.38457,
+      "run_B_ali": 0.38316,
+      "abs_diff": 0.00141
+    },
+    {
+      "task": "binary_high_risk",
+      "model": "random_forest",
+      "metric": "high_risk_recall",
+      "run_A_yunus": 0.55922,
+      "run_B_ali": 0.55598,
+      "abs_diff": 0.00324
+    },
+    {
+      "task": "binary_high_risk",
+      "model": "gbt",
+      "metric": "accuracy",
+      "run_A_yunus": 0.69103,
+      "run_B_ali": 0.68987,
+      "abs_diff": 0.00116
+    },
+    {
+      "task": "binary_high_risk",
+      "model": "gbt",
+      "metric": "weighted_f1",
+      "run_A_yunus": 0.71949,
+      "run_B_ali": 0.71876,
+      "abs_diff": 0.00073
+    },
+    {
+      "task": "binary_high_risk",
+      "model": "gbt",
+      "metric": "roc_auc",
+      "run_A_yunus": 0.73098,
+      "run_B_ali": 0.73151,
+      "abs_diff": 0.00052
+    },
+    {
+      "task": "binary_high_risk",
+      "model": "gbt",
+      "metric": "pr_auc",
+      "run_A_yunus": 0.39906,
+      "run_B_ali": 0.3985,
+      "abs_diff": 0.00057
+    },
+    {
+      "task": "binary_high_risk",
+      "model": "gbt",
+      "metric": "high_risk_recall",
+      "run_A_yunus": 0.63682,
+      "run_B_ali": 0.6407,
+      "abs_diff": 0.00388
+    },
+    {
+      "task": "multiclass_severity",
+      "model": "logreg",
+      "metric": "accuracy",
+      "run_A_yunus": 0.32697,
+      "run_B_ali": 0.32645,
+      "abs_diff": 0.00051
+    },
+    {
+      "task": "multiclass_severity",
+      "model": "logreg",
+      "metric": "weighted_f1",
+      "run_A_yunus": 0.41259,
+      "run_B_ali": 0.41227,
+      "abs_diff": 0.00032
+    },
+    {
+      "task": "multiclass_severity",
+      "model": "logreg",
+      "metric": "weighted_precision",
+      "run_A_yunus": 0.75188,
+      "run_B_ali": 0.75263,
+      "abs_diff": 0.00075
+    },
+    {
+      "task": "multiclass_severity",
+      "model": "logreg",
+      "metric": "weighted_recall",
+      "run_A_yunus": 0.32697,
+      "run_B_ali": 0.32645,
+      "abs_diff": 0.00051
+    },
+    {
+      "task": "multiclass_severity",
+      "model": "random_forest",
+      "metric": "accuracy",
+      "run_A_yunus": 0.42016,
+      "run_B_ali": 0.42121,
+      "abs_diff": 0.00105
+    },
+    {
+      "task": "multiclass_severity",
+      "model": "random_forest",
+      "metric": "weighted_f1",
+      "run_A_yunus": 0.51787,
+      "run_B_ali": 0.51892,
+      "abs_diff": 0.00105
+    },
+    {
+      "task": "multiclass_severity",
+      "model": "random_forest",
+      "metric": "weighted_precision",
+      "run_A_yunus": 0.7716,
+      "run_B_ali": 0.77215,
+      "abs_diff": 0.00054
+    },
+    {
+      "task": "multiclass_severity",
+      "model": "random_forest",
+      "metric": "weighted_recall",
+      "run_A_yunus": 0.42016,
+      "run_B_ali": 0.42121,
+      "abs_diff": 0.00105
+    }
+  ]
+}
