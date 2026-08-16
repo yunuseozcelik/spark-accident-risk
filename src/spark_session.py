@@ -149,9 +149,9 @@ def get_spark(
     builder = (
         SparkSession.builder
         .appName(app_name)
-        .master("local[4]")
-        .config("spark.driver.memory", "3g")
-        .config("spark.sql.shuffle.partitions", "24")
+        .master(os.environ.get("SPARK_ACCIDENT_MASTER", "local[4]"))
+        .config("spark.driver.memory", os.environ.get("SPARK_ACCIDENT_DRIVER_MEM", "3g"))
+        .config("spark.sql.shuffle.partitions", os.environ.get("SPARK_ACCIDENT_SHUFFLE_PARTS", "24"))
         .config("spark.sql.session.timeZone", "UTC")
         .config(
             "spark.pyspark.python",

@@ -35,7 +35,7 @@ ROAD_FLAGS = [
 # Zaman ve diğer sayısal öznitelikler (year modele alınmaz — dağıtım kayması riski)
 TIME_NUM = [
     "hour", "day_of_week", "month",
-    "is_weekend", "is_rush_hour", "is_night",
+    "is_weekend", "is_rush_hour", "is_night", "is_night_missing",
     "duration_min", "Distance(mi)",
 ]
 

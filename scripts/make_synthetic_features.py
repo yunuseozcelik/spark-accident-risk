@@ -52,6 +52,7 @@ def main() -> None:
         .withColumn("is_weekend", F.col("day_of_week").isin(1, 7).cast("int"))
         .withColumn("is_rush_hour", F.col("hour").isin(7, 8, 9, 16, 17, 18).cast("int"))
         .withColumn("is_night", (F.rand(6) < 0.35).cast("int"))
+        .withColumn("is_night_missing", (F.rand(22) < 0.003).cast("int"))
         .withColumn("duration_min", F.round(F.rand(7) * 240 + 5, 1))
         .withColumn("Distance(mi)", F.round(F.rand(8) * 3, 3))
         # Hava durumu: kategorik + sayısal (bir kısmı null -> Imputer denenir)

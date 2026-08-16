@@ -48,7 +48,12 @@ def main() -> None:
         .withColumn("year", F.year("Start_Time"))
         .withColumn("is_weekend", F.col("day_of_week").isin(1, 7).cast("int"))
         .withColumn("is_rush_hour", F.col("hour").isin(RUSH_HOURS).cast("int"))
-        .withColumn("is_night", (F.col("Sunrise_Sunset") == "Night").cast("int"))
+        .withColumn("is_night_missing", F.col("Sunrise_Sunset").isNull().cast("int"))
+        .withColumn(
+            "is_night",
+            F.when(F.col("Sunrise_Sunset").isNull(), F.lit(0))
+             .otherwise((F.col("Sunrise_Sunset") == "Night").cast("int")),
+        )
         .withColumn("high_risk", (F.col("Severity") >= 3).cast("int"))
     )
     for c in ROAD_FLAGS:
@@ -57,7 +62,7 @@ def main() -> None:
     features = df.select(
         "ID", "Severity", "high_risk",
         "hour", "day_of_week", "month", "year",
-        "is_weekend", "is_rush_hour", "is_night",
+        "is_weekend", "is_rush_hour", "is_night", "is_night_missing",
         "duration_min", "Distance(mi)",
         *WEATHER_NUM, "weather_group", "precip_missing",
         *ROAD_FLAGS,
