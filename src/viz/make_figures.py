@@ -72,8 +72,8 @@ def severity_distribution():
         ax.text(b.get_x() + b.get_width() / 2, b.get_height(), f"{c/total:.1%}",
                  ha="center", va="bottom", fontsize=9, color=INK_SECONDARY)
     ax.set_xlabel("Severity")
-    ax.set_ylabel("Kaza sayısı")
-    ax.set_title("Severity dağılımı (n=7.728.394)", color=INK_PRIMARY, fontsize=11, loc="left")
+    ax.set_ylabel("Number of accidents")
+    ax.set_title("Severity distribution (n=7,728,394)", color=INK_PRIMARY, fontsize=11, loc="left")
     _clean_axes(ax)
     fig.tight_layout()
     fig.savefig(FIGURES / "severity_distribution.png", dpi=150)
@@ -92,9 +92,9 @@ def hourly_high_risk_rate():
     rush = df[df["hour"].isin([7, 8, 9, 16, 17, 18])]
     ax.scatter(rush["hour"], rush["high_risk_rate"], color=ORANGE, s=32, zorder=5,
                label="Rush hour (07-09, 16-18)")
-    ax.set_xlabel("Saat")
-    ax.set_ylabel("Yüksek-şiddet oranı (Severity ≥ 3)")
-    ax.set_title("Saate göre yüksek-şiddet oranı", color=INK_PRIMARY, fontsize=11, loc="left")
+    ax.set_xlabel("Hour of day")
+    ax.set_ylabel("High-risk rate (Severity >= 3)")
+    ax.set_title("High-risk rate by hour of day", color=INK_PRIMARY, fontsize=11, loc="left")
     ax.set_xticks(range(0, 24, 2))
     ax.legend(frameon=False, loc="lower left")
     _clean_axes(ax)
@@ -111,9 +111,9 @@ def model_comparison():
 
     for task, metrics_wanted, fname, title in [
         ("severity", ["accuracy", "weighted_f1"], "model_comparison_severity.png",
-         "Çok sınıflı Severity — model karşılaştırması"),
+         "Multiclass Severity - model comparison"),
         ("high_risk", ["weighted_f1", "roc_auc", "high_risk_recall"], "model_comparison_high_risk.png",
-         "İkili high-risk — model karşılaştırması"),
+         "Binary high-risk - model comparison"),
     ]:
         sub = df[(df["task"] == task) & (df["metric"].isin(metrics_wanted))]
         if sub.empty:
@@ -135,7 +135,7 @@ def model_comparison():
         ax.set_xticks(list(x))
         ax.set_xticklabels(pivot.index)
         ax.set_ylim(0, 1.08)
-        ax.set_ylabel("Değer")
+        ax.set_ylabel("Score")
         ax.set_title(title, color=INK_PRIMARY, fontsize=11, loc="left")
         ax.legend(frameon=False, loc="upper center", bbox_to_anchor=(0.5, -0.12), ncol=n_metrics)
         _clean_axes(ax)
@@ -159,14 +159,15 @@ def confusion_matrix_best():
     mat_norm = [[v / sum(row) if sum(row) else 0 for v in row] for row in mat]
 
     fig, ax = plt.subplots(figsize=(4.5, 4))
+    ax.grid(False)  # ısı haritasında grid hücrelerin üstüne biner
     im = ax.imshow(mat_norm, cmap="Blues", vmin=0, vmax=1)
     ax.set_xticks(range(len(labels)))
     ax.set_yticks(range(len(labels)))
     ax.set_xticklabels(["low-risk (0)", "high-risk (1)"] if labels == ["0", "1"] else labels)
     ax.set_yticklabels(["low-risk (0)", "high-risk (1)"] if labels == ["0", "1"] else labels)
-    ax.set_xlabel("Tahmin")
-    ax.set_ylabel("Gerçek")
-    ax.set_title(f"Karışıklık matrisi — {model} (high_risk)", color=INK_PRIMARY, fontsize=11, loc="left")
+    ax.set_xlabel("Predicted")
+    ax.set_ylabel("Actual")
+    ax.set_title(f"Confusion matrix - {model} (high_risk)", color=INK_PRIMARY, fontsize=11, loc="left")
     for i, row in enumerate(mat):
         for j, v in enumerate(row):
             frac = mat_norm[i][j]
@@ -195,8 +196,8 @@ def feature_importance():
 
     fig, ax = plt.subplots(figsize=(7, 4.5))
     ax.barh(names, vals, color=BLUE, zorder=3)
-    ax.set_xlabel("Önem (featureImportances)")
-    ax.set_title(f"Öznitelik önemi — {model} (high_risk, top 10)", color=INK_PRIMARY, fontsize=11, loc="left")
+    ax.set_xlabel("Importance (featureImportances)")
+    ax.set_title(f"Feature importance - {model} (high_risk, top 10)", color=INK_PRIMARY, fontsize=11, loc="left")
     _clean_axes(ax)
     ax.grid(axis="x", zorder=0)
     ax.grid(axis="y", visible=False)
