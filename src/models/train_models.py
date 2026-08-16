@@ -168,16 +168,24 @@ def main() -> None:
     df = df.withColumn("severity_label", (F.col("Severity") - 1).cast("double"))
     df = df.withColumn("high_risk", F.col("high_risk").cast("double"))
 
-    # Öznitelik pipeline'ını bir kez fit et, iki görevde de kullan
-    feat_pipeline = Pipeline(stages=build_feature_stages()).fit(df)
-    feat_df = feat_pipeline.transform(df).cache()
-    feature_names = extract_feature_names(feat_df)
+    # Önce ham veriyi train/test olarak ayır.
+    # Imputer, StringIndexer ve OneHotEncoder yalnızca train üzerinde fit edilir.
+    n_total = df.count()
+    train_raw, test_raw = df.randomSplit([0.8, 0.2], seed=SEED)
+
+    train_raw = train_raw.cache()
+    test_raw = test_raw.cache()
+
+    # Öğrenilen preprocessing adımlarını yalnızca eğitim verisi üzerinde fit et.
+    feat_pipeline = Pipeline(stages=build_feature_stages()).fit(train_raw)
+
+    train = feat_pipeline.transform(train_raw).cache()
+    test = feat_pipeline.transform(test_raw).cache()
+
+    feature_names = extract_feature_names(train)
     feature_names_holder = [feature_names]
     print(f"Toplam öznitelik boyutu: {len(feature_names)}")
 
-    n_total = feat_df.count()
-    train, test = feat_df.randomSplit([0.8, 0.2], seed=SEED)
-    train = train.cache()
     print(f"Satır: {n_total:,} | eğitim: {train.count():,} | test: {test.count():,}")
 
     # --- Görev 1: Çok sınıflı Severity ---
