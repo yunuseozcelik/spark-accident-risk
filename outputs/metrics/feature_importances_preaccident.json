@@ -1,0 +1,72 @@
+{
+  "severity": {
+    "random_forest": {
+      "month": 0.2285654465285751,
+      "precip_missing": 0.19193500577940972,
+      "Traffic_Signal": 0.1427998103590757,
+      "Temperature(F)": 0.08342236276043645,
+      "Pressure(in)": 0.0669965826300162,
+      "hour": 0.06659608050271894,
+      "Crossing": 0.05871763647975564,
+      "is_weekend": 0.025530326088867576,
+      "is_night": 0.02532444963603456,
+      "Wind_Speed(mph)": 0.022651747118615045,
+      "Humidity(%)": 0.019667470705149424,
+      "is_rush_hour": 0.019184965566546364,
+      "day_of_week": 0.00876196178238009,
+      "Stop": 0.00566273591719351,
+      "Precipitation(in)": 0.005459629873865185,
+      "weather_group_ohe_Clear": 0.005097783546965678,
+      "weather_group_ohe_Unknown": 0.004837171282593954,
+      "Visibility(mi)": 0.0035964608790574988,
+      "weather_group_ohe_Rain": 0.0032553837563092216,
+      "Junction": 0.0026362097869258496
+    }
+  },
+  "high_risk": {
+    "random_forest": {
+      "precip_missing": 0.40273389778375773,
+      "Crossing": 0.13639204646334346,
+      "Traffic_Signal": 0.1258511049309895,
+      "Wind_Speed(mph)": 0.06266949181218907,
+      "Pressure(in)": 0.06122730991440293,
+      "Stop": 0.03782209245692586,
+      "month": 0.022926278886563345,
+      "weather_group_ohe_Clear": 0.02188678192538336,
+      "Precipitation(in)": 0.019087558318735823,
+      "weather_group_ohe_Rain": 0.01217101530884785,
+      "is_weekend": 0.01142416950602234,
+      "Station": 0.010945063533736183,
+      "Junction": 0.010745315194661093,
+      "weather_group_ohe_Cloudy": 0.008681008472974606,
+      "Temperature(F)": 0.00818764106487882,
+      "hour": 0.00780879181814732,
+      "Humidity(%)": 0.006481903226489061,
+      "weather_group_ohe_Unknown": 0.0062662763769776135,
+      "Visibility(mi)": 0.005116967165603797,
+      "Amenity": 0.004717802328264712
+    },
+    "gbt": {
+      "precip_missing": 0.18638806780644196,
+      "Pressure(in)": 0.13003330009208652,
+      "month": 0.07771409689149006,
+      "Temperature(F)": 0.06725968825739508,
+      "Traffic_Signal": 0.06675701379682075,
+      "hour": 0.0612598519429028,
+      "Wind_Speed(mph)": 0.06108150361935339,
+      "Crossing": 0.05368190077477708,
+      "Stop": 0.0314248957290901,
+      "Station": 0.03126555123326893,
+      "is_weekend": 0.03125433106159237,
+      "Precipitation(in)": 0.031000330126944812,
+      "Humidity(%)": 0.029187456155896588,
+      "Railway": 0.021305822822295678,
+      "weather_group_ohe_Unknown": 0.014848173827607005,
+      "Amenity": 0.01480910284265919,
+      "Junction": 0.014781499143348958,
+      "weather_group_ohe_Clear": 0.013797652975103247,
+      "is_night": 0.010802164782978966,
+      "weather_group_ohe_Snow_Ice": 0.010370824083985652
+    }
+  }
+}
