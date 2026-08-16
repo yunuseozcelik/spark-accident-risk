@@ -38,7 +38,10 @@ TIME_NUM = [
     "is_weekend", "is_rush_hour", "is_night", "is_night_missing",
     "duration_min", "Distance(mi)",
 ]
-
+POST_EVENT_FEATURES = [
+    "duration_min",
+    "Distance(mi)",
+]
 # One-hot kodlanacak kategorik öznitelik(ler)
 CATEGORICAL = ["weather_group"]
 
@@ -49,7 +52,7 @@ IMPUTE_COLS = WEATHER_NUM
 NUMERIC_FEATURES = TIME_NUM + WEATHER_NUM + ["precip_missing"] + ROAD_FLAGS
 
 
-def build_feature_stages() -> list:
+def build_feature_stages(pre_accident_only: bool = False) -> list:
     """Etiketten bağımsız öznitelik dönüşüm aşamalarını döndürür.
 
     VectorAssembler çıktısı ``features`` kolonudur; her iki görev
@@ -78,8 +81,15 @@ def build_feature_stages() -> list:
         for c in CATEGORICAL
     ]
 
+    numeric_features = NUMERIC_FEATURES
+    if pre_accident_only:
+        numeric_features = [
+            c for c in NUMERIC_FEATURES
+            if c not in POST_EVENT_FEATURES
+        ]
+
     assembler = VectorAssembler(
-        inputCols=NUMERIC_FEATURES + [f"{c}_ohe" for c in CATEGORICAL],
+        inputCols=numeric_features + [f"{c}_ohe" for c in CATEGORICAL],
         outputCol="features",
         handleInvalid="keep",
     )
@@ -87,6 +97,10 @@ def build_feature_stages() -> list:
     return [imputer, *indexers, *encoders, assembler]
 
 
-def build_feature_pipeline() -> Pipeline:
+def build_feature_pipeline(pre_accident_only: bool = False) -> Pipeline:
     """Öznitelik aşamalarını tek bir Pipeline nesnesi olarak döndürür."""
-    return Pipeline(stages=build_feature_stages())
+    return Pipeline(
+        stages=build_feature_stages(
+            pre_accident_only=pre_accident_only
+        )
+    )
