@@ -206,10 +206,72 @@ def feature_importance():
     plt.close(fig)
 
 
+def county_choropleth():
+    """Sedona join çıktısından ilçe bazlı high-risk oranı haritası (baskıya uygun).
+
+    Dashboard'un (outputs/maps/dashboard.html) statik, İngilizce, rapora
+    gömülebilir karşılığı. geopandas yoksa sessizce atlanır.
+    """
+    risk_csv = METRICS / "county_risk.csv"
+    wkt_path = Path("data/boundaries/counties_wkt.parquet")
+    if not risk_csv.exists() or not wkt_path.exists():
+        return
+    try:
+        import geopandas as gpd
+        from shapely import wkt as shapely_wkt
+    except ImportError:
+        return
+
+    from matplotlib.colors import BoundaryNorm, ListedColormap
+
+    bdf = pd.read_parquet(wkt_path)
+    bdf["geoid"] = bdf["STATEFP"] + bdf["COUNTYFP"]
+    gdf = gpd.GeoDataFrame(
+        bdf[["geoid"]], geometry=bdf["wkt"].map(shapely_wkt.loads), crs="EPSG:4326"
+    )
+    gdf["geometry"] = gdf.geometry.simplify(0.01)
+    risk = pd.read_csv(risk_csv, dtype={"geoid": str})
+    gdf = gdf.merge(risk, on="geoid", how="left")
+    gdf["n_accidents"] = gdf["n_accidents"].fillna(0).astype(int)
+    gdf.loc[gdf["n_accidents"] < 50, "high_risk_rate"] = None
+
+    # Sürekli ABD (Alaska/Hawaii/toprak dışı hariç) — okunabilir ölçek
+    gdf = gdf.cx[-125:-66, 24:50]
+
+    ramp = ["#cde2fb", "#9ec5f4", "#6da7ec", "#3987e5", "#256abf", "#184f95", "#0d366b"]
+    bounds = [0, 0.05, 0.10, 0.15, 0.20, 0.30, 0.45, 1.0]
+    cmap = ListedColormap(ramp)
+    norm = BoundaryNorm(bounds, cmap.N)
+
+    fig, ax = plt.subplots(figsize=(8, 4.8))
+    gdf.plot(column="high_risk_rate", cmap=cmap, norm=norm, ax=ax,
+             edgecolor="#fcfcfb", linewidth=0.15,
+             missing_kwds={"color": "#e1e0d9", "edgecolor": "#fcfcfb", "linewidth": 0.15})
+    ax.set_axis_off()
+    ax.grid(False)
+    ax.set_title("High-risk rate (Severity >= 3) by county, 2016-2023",
+                 color=INK_PRIMARY, fontsize=11, loc="left")
+
+    sm = plt.cm.ScalarMappable(cmap=cmap, norm=norm)
+    # spacing="uniform": her kova eşit genişlikte -> düşük kovaların etiketleri okunur
+    cbar = fig.colorbar(sm, ax=ax, orientation="horizontal",
+                        fraction=0.030, pad=0.06, spacing="uniform", shrink=0.75)
+    cbar.set_ticks(bounds)
+    cbar.set_ticklabels([f"{b:.0%}" for b in bounds])
+    cbar.ax.tick_params(labelsize=8, colors=INK_SECONDARY, length=2)
+    cbar.outline.set_visible(False)
+    cbar.set_label("Share of accidents with Severity >= 3    "
+                   "(grey = fewer than 50 recorded accidents)",
+                   fontsize=8, color=INK_MUTED, labelpad=6)
+    fig.tight_layout()
+    fig.savefig(FIGURES / "county_high_risk_map.png", dpi=160, bbox_inches="tight")
+    plt.close(fig)
+
+
 def main() -> None:
     made = []
     for fn in [severity_distribution, hourly_high_risk_rate, model_comparison,
-               confusion_matrix_best, feature_importance]:
+               confusion_matrix_best, feature_importance, county_choropleth]:
         before = set(FIGURES.glob("*.png"))
         fn()
         after = set(FIGURES.glob("*.png"))
