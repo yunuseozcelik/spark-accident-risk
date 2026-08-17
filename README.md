@@ -42,11 +42,7 @@ dağıtık bir veri hattıyla analizi ve bölgesel risk haritalarının üretilm
 │   ├── figures/      # Grafikler, confusion matrix
 │   ├── maps/         # HTML risk haritaları
 │   └── metrics/      # Model karşılaştırma tabloları (csv/json)
-├── report/           # Akademik rapor (paper) kaynakları
-├── scripts/          # Kurulum ve çalıştırma yardımcı script'leri
-└── docs/
-    ├── ROADMAP.md    # Yol haritası ve kontrol noktaları
-    └── proposal/     # Proje öneri raporu ve ders proje tanımı
+└── scripts/          # Kurulum ve çalıştırma yardımcı script'leri
 ```
 
 ## Teknoloji Yığını
@@ -64,5 +60,3 @@ python3 -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
 # Java 11 veya 17 kurulu olmalı (spark önkoşulu)
 ```
-
-Ayrıntılı yol haritası ve teslim takvimi için: [`docs/ROADMAP.md`](docs/ROADMAP.md)

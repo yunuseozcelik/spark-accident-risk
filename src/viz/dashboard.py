@@ -29,6 +29,7 @@ from src.spatial.risk_map import BLUE_RAMP, MIN_N_FOR_RATE, load_counties, quant
 RISK_CSV = "outputs/metrics/county_risk.csv"
 PROFILES_JSON = "outputs/metrics/county_profiles.json"
 TEMPLATE = Path(__file__).with_name("dashboard_template.html")
+VENDOR = Path(__file__).with_name("vendor")
 OUT = Path("outputs/maps/dashboard.html")
 
 
@@ -78,6 +79,9 @@ def main() -> None:
 
     html = TEMPLATE.read_text(encoding="utf-8")
     for token, value in [
+        # Leaflet CDN yerine gömülü: demo sırasında internet gerekmesin
+        ("__LEAFLET_CSS__", VENDOR.joinpath("leaflet.css").read_text(encoding="utf-8")),
+        ("__LEAFLET_JS__", VENDOR.joinpath("leaflet.js").read_text(encoding="utf-8")),
         ("__GEOJSON__", json.dumps(geojson, separators=(",", ":"))),
         ("__PROFILES__", json.dumps(profiles, separators=(",", ":"))),
         ("__BINS__", json.dumps(bins)),

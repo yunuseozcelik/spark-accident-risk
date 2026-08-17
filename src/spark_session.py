@@ -37,13 +37,7 @@ GEOTOOLS_JAR_NAME = (
 
 
 def _ensure_supported_java() -> None:
-    """Spark 3.5 için desteklenen JDK'yı (8/11/17) JAVA_HOME'a ayarlar.
-
-    Bu makinede varsayılan Java 21 olabilir; Spark 3.5 Java 21'i desteklemez
-    ve modül erişim (InaccessibleObject) hataları verebilir. Yerelde kurulu
-    bir JDK 17 varsa (setup_env.ps1 ile ~/Java/jdk-17 altına) onu kullanırız.
-    JAVA_HOME zaten uygun bir JDK'ya işaret ediyorsa dokunmayız.
-    """
+    
     if os.environ.get("SPARK_ACCIDENT_SKIP_JAVA_CHECK"):
         return
     # Bilinen JDK 17 konumlarına öncelik ver (JAVA_HOME Java 21 olabilir),
@@ -66,13 +60,7 @@ def _ensure_supported_java() -> None:
 
 
 def _ensure_hadoop_home() -> None:
-    """Windows'ta Spark için HADOOP_HOME + winutils.exe/hadoop.dll ayarlar.
-
-    Spark, Windows'ta yerel dosya sistemi işlemleri için Hadoop'un
-    winutils.exe ve hadoop.dll ikililerini gerektirir; yoksa
-    'HADOOP_HOME and hadoop.home.dir are unset' hatası verir. Bunlar
-    setup_env.ps1 ile ~/hadoop/bin altına indirilir.
-    """
+    
     if os.name != "nt":
         return
     existing = os.environ.get("HADOOP_HOME")
